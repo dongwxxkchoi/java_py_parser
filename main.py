@@ -45,16 +45,24 @@ class Parser(object):
         self.cur = 0
         self.state = 0
         self.cfg_table = cfg
+        self.cur_stack = []
 
     # parse
     def parse(self):
         print(self.table)
+        self.cur_stack.append(0)
         while True:
             next_input = self.tokens[self.cur]
             next_rule = self.table[self.state][next_input]
-            print(self.cur, self.state, next_input, next_rule)
+            print("cursor:", self.cur, " next_input:", next_input)
+            print("tokens:", self.tokens)
+            print("Let's parse. state:", self.state, "cfg:", next_rule)
             if not self.check_rule(next_rule):
                 break
+            print("after. cursor:", self.cur)
+            print("tokens:", self.tokens)
+            print("state:", self.state)
+            print("------------------------------")
 
     # forward / 앞으로 나가기
     def forward(self):
@@ -64,7 +72,10 @@ class Parser(object):
     def check_rule(self, rule):
         if isinstance(rule, int):
             # goto
+            print("goto")
             self.state = int(rule)
+            self.cur_stack.append(self.state)
+            return True
 
         elif isinstance(rule, str):
             # shift
@@ -82,6 +93,8 @@ class Parser(object):
     def shift(self, rule):
         # shift
         self.state = int(rule[1:])
+        self.cur_stack.append(self.state)
+        print("cur_stack:", self.cur_stack)
         self.forward()
 
         # error_check
@@ -90,7 +103,36 @@ class Parser(object):
     def reduce(self, rule):
         # reduce
         cfg = self.cfg_table[int(rule[1:])]
+        print("reduce rule: ", cfg)
         lhs, rhs = cfg
+        rhs_tokens = list(rhs.split())
+        reduce_len = len(rhs_tokens)
+        if rhs_tokens == ["''"]:
+            self.tokens.insert(self.cur, lhs)
+            self.forward()
+
+        else:
+            if reduce_len == 1:
+                self.tokens[self.cur-1] = lhs
+            elif reduce_len > 1:
+                self.tokens[self.cur-1] = lhs
+                del self.tokens[(self.cur-1)-(reduce_len-1):(self.cur-1)]
+                self.cur -= (reduce_len-1)
+
+            for _ in range(reduce_len):
+                self.cur_stack.pop()
+
+            self.state = self.cur_stack[-1]
+        print("cur_stack:", self.cur_stack)
+
+
+        # cur로부터 len만큼 앞에 없앰 (만약 0이다?, 그냥 자기만 바꿈.) (1이상? 자기 포함 앞에 바꿈)
+        # (cur바꿈)
+        # (cur 바꿈) (cur - reduce_len:cur까지 del해버림)
+        # cur을 cur - reduce_len으로 초기화
+
+        # del my_list[start:end]
+        # cur input이 그대로 들어감
         # lhs -> rhs
         # rhs를 다시 lhs로 바꿔야 함
         # rhs가 여러개라면 어떻게...?
@@ -99,6 +141,7 @@ class Parser(object):
         pass
 
 
-sequence = "vtype id semi vtype id lparen rparen lbrace if lparen boolstr comp boolstr rparen lbrace rbrace"
+sequence = "vtype id lparen vtype id comma vtype id rparen lbrace return num semi rbrace"
 my_parser = Parser(call_table("table"), sequence, call_cfg("cfg"))
+print(my_parser.cfg_table)
 my_parser.parse()
