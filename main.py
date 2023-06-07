@@ -52,6 +52,7 @@ class Parser(object):
         self.cur_stack = [0]
         self.cfg_table = cfg # cfg 들이 담김
         self.state_stack = [Node("S")] # state 들의 stack
+        self.error_flag = 0
 
     # parse
     def parse(self):
@@ -61,12 +62,17 @@ class Parser(object):
             # print("-----------------------start left viable prefix check-----------------------")
             if self.check_viable_prefix(): # left check
                 target = self.tokens[self.splitter + 1]
-                next_rule = self.table[self.state][target]
+                # next_rule = self.table[self.state][target]
             else:
                 print("error")
             # print("-----------------------left viable prefix check finish-----------------------")
 
-            next_rule = self.table[self.state][self.tokens[self.splitter+1]]
+            try :
+                next_rule = self.table[self.state][self.tokens[self.splitter+1]]
+            except KeyError as e:
+                print("Parsing error : token", target)
+                self.error_flag = 1
+                break
             # print()
             # print("-----------------------parsing start-----------------------")
             # print("Parsing rule:", next_rule)
@@ -74,7 +80,6 @@ class Parser(object):
                 break
             # print("After parsing:", self.tokens)
             # print("-----------------------parsing finish-----------------------")
-
 
     # viable_prefix check
     def check_viable_prefix(self):
@@ -205,8 +210,9 @@ try:
     my_parser = Parser(call_table("table"), sequence, call_cfg("cfg"))
     # print(my_parser.cfg_table)
     my_parser.parse()
-    for pre, fill, node in RenderTree(my_parser.state_stack[0], childiter=reversed):
-        print("%s%s" % (pre, node.name))
+    if my_parser.error_flag == 0:
+        for pre, fill, node in RenderTree(my_parser.state_stack[0], childiter=reversed):
+            print("%s%s" % (pre, node.name))
 
 except (FileNotFoundError, NameError) as e:
     print("Invalid argument")
