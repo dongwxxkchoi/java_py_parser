@@ -70,7 +70,9 @@ class Parser(object):
             try :
                 next_rule = self.table[self.state][self.tokens[self.splitter+1]]
             except KeyError as e:
-                print("Parsing error : token", target)
+                print("Parsing error : token {0} from index {1}".format(target, self.splitter))
+                f.write("Parsing error : token {0} from index {1}".format(target, self.splitter))
+                f.write("\n")
                 self.error_flag = 1
                 break
             # print()
@@ -209,10 +211,15 @@ try:
 
     my_parser = Parser(call_table("table"), sequence, call_cfg("cfg"))
     # print(my_parser.cfg_table)
+    f = open("output.txt", 'w')
     my_parser.parse()
     if my_parser.error_flag == 0:
         for pre, fill, node in RenderTree(my_parser.state_stack[0], childiter=reversed):
             print("%s%s" % (pre, node.name))
+            f.write("%s%s" % (pre, node.name))
+            f.write("\n")
+    print("Stored in output.txt")
+    f.close()
 
 except (FileNotFoundError, NameError) as e:
     print("Invalid argument")

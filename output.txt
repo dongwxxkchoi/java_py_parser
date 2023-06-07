@@ -1,0 +1,102 @@
+S
+└── CODE
+    ├── VDECL
+    │   ├── vtype
+    │   ├── ASSIGN
+    │   │   ├── id
+    │   │   ├── assign
+    │   │   └── RHS
+    │   │       └── EXPR
+    │   │           ├── TERM
+    │   │           │   ├── FACTOR
+    │   │           │   │   ├── lparen
+    │   │           │   │   ├── EXPR
+    │   │           │   │   │   ├── TERM
+    │   │           │   │   │   │   ├── FACTOR
+    │   │           │   │   │   │   │   └── num
+    │   │           │   │   │   │   └── TERM2
+    │   │           │   │   │   │       └── ε
+    │   │           │   │   │   └── EXPR2
+    │   │           │   │   │       ├── addsub
+    │   │           │   │   │       ├── TERM
+    │   │           │   │   │       │   ├── FACTOR
+    │   │           │   │   │       │   │   └── num
+    │   │           │   │   │       │   └── TERM2
+    │   │           │   │   │       │       └── ε
+    │   │           │   │   │       └── EXPR2
+    │   │           │   │   │           └── ε
+    │   │           │   │   └── rparen
+    │   │           │   └── TERM2
+    │   │           │       ├── multdiv
+    │   │           │       ├── FACTOR
+    │   │           │       │   └── num
+    │   │           │       └── TERM2
+    │   │           │           └── ε
+    │   │           └── EXPR2
+    │   │               └── ε
+    │   └── semi
+    └── CODE
+        ├── FDECL
+        │   ├── vtype
+        │   ├── id
+        │   ├── lparen
+        │   ├── ARG
+        │   │   ├── vtype
+        │   │   ├── id
+        │   │   └── MOREARGS
+        │   │       └── ε
+        │   ├── rparen
+        │   ├── lbrace
+        │   ├── BLOCK
+        │   │   ├── STMT
+        │   │   │   ├── if
+        │   │   │   ├── lparen
+        │   │   │   ├── COND
+        │   │   │   │   ├── COND2
+        │   │   │   │   │   └── boolstr
+        │   │   │   │   ├── comp
+        │   │   │   │   └── COND
+        │   │   │   │       ├── COND2
+        │   │   │   │       │   └── boolstr
+        │   │   │   │       ├── comp
+        │   │   │   │       └── COND
+        │   │   │   │           └── boolstr
+        │   │   │   ├── rparen
+        │   │   │   ├── lbrace
+        │   │   │   ├── BLOCK
+        │   │   │   │   ├── STMT
+        │   │   │   │   │   ├── ASSIGN
+        │   │   │   │   │   │   ├── id
+        │   │   │   │   │   │   ├── assign
+        │   │   │   │   │   │   └── RHS
+        │   │   │   │   │   │       └── EXPR
+        │   │   │   │   │   │           ├── TERM
+        │   │   │   │   │   │           │   ├── FACTOR
+        │   │   │   │   │   │           │   │   └── num
+        │   │   │   │   │   │           │   └── TERM2
+        │   │   │   │   │   │           │       └── ε
+        │   │   │   │   │   │           └── EXPR2
+        │   │   │   │   │   │               └── ε
+        │   │   │   │   │   └── semi
+        │   │   │   │   └── BLOCK
+        │   │   │   │       └── ε
+        │   │   │   ├── rbrace
+        │   │   │   └── ELSE
+        │   │   │       └── ε
+        │   │   └── BLOCK
+        │   │       └── ε
+        │   ├── RETURN
+        │   │   ├── return
+        │   │   ├── RHS
+        │   │   │   └── EXPR
+        │   │   │       ├── TERM
+        │   │   │       │   ├── FACTOR
+        │   │   │       │   │   └── num
+        │   │   │       │   └── TERM2
+        │   │   │       │       └── ε
+        │   │   │       └── EXPR2
+        │   │   │           └── ε
+        │   │   └── semi
+        │   └── rbrace
+        └── CODE
+            └── ε
