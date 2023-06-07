@@ -55,25 +55,25 @@ class Parser(object):
 
     # parse
     def parse(self):
-        print(self.table)
+        # print(self.table)
         while True:
-            print("\n===============================================================================================\n")
-            print("-----------------------start left viable prefix check-----------------------")
+            # print("\n===============================================================================================\n")
+            # print("-----------------------start left viable prefix check-----------------------")
             if self.check_viable_prefix(): # left check
                 target = self.tokens[self.splitter + 1]
                 next_rule = self.table[self.state][target]
             else:
                 print("error")
-            print("-----------------------left viable prefix check finish-----------------------")
+            # print("-----------------------left viable prefix check finish-----------------------")
 
             next_rule = self.table[self.state][self.tokens[self.splitter+1]]
-            print()
-            print("-----------------------parsing start-----------------------")
-            print("Parsing rule:", next_rule)
+            # print()
+            # print("-----------------------parsing start-----------------------")
+            # print("Parsing rule:", next_rule)
             if not self.check_rule(next_rule, left=False): # 실제 parse
                 break
-            print("After parsing:", self.tokens)
-            print("-----------------------parsing finish-----------------------")
+            # print("After parsing:", self.tokens)
+            # print("-----------------------parsing finish-----------------------")
 
 
     # viable_prefix check
@@ -86,16 +86,16 @@ class Parser(object):
         else:
             self.cur = 0
         next_rule = self.table[self.state][self.tokens[self.cur]]
-        print("start cursor:", self.cur, "start state:", self.state, "start rule:", next_rule)
+        # print("start cursor:", self.cur, "start state:", self.state, "start rule:", next_rule)
         while self.check_rule(next_rule):
             if self.cur == self.splitter: # viable prefix가 handle 맞음
-                print("final state: ", self.state)
+                # print("final state: ", self.state)
                 return True
             self.cur_stack.append(self.state)
             next_rule = self.table[self.state][self.tokens[self.cur]]
-            print("current cursor:", self.cur, "current state:", self.state, "current rule:", next_rule)
+            # print("current cursor:", self.cur, "current state:", self.state, "current rule:", next_rule)
 
-        print("\n\nViable prefix failed!")
+        # print("\n\nViable prefix failed!")
         return False
 
 
@@ -117,7 +117,7 @@ class Parser(object):
             if left:
                 self.cur += 1
             else:
-                print("rule:", rule)
+                # print("rule:", rule)
                 self.forward()
             return True
 
@@ -130,8 +130,8 @@ class Parser(object):
                 self.reduce(rule, left)
                 return True
             elif rule == 'acc':
-                print("-----------------------parsing finish-----------------------")
-                print("\n\nPROGRAM FINISHED!")
+                # print("-----------------------parsing finish-----------------------")
+                # print("\n\nPROGRAM FINISHED!")
                 return False
             else: # exception
                 return False
@@ -156,7 +156,7 @@ class Parser(object):
             return False
 
         cfg = self.cfg_table[int(rule[1:])]
-        print("reduce rule: ", cfg)
+        # print("reduce rule: ", cfg)
         lhs, rhs = cfg
         self.state_stack.append(Node(lhs, parent=self.state_stack[0]))
         rhs_tokens = list(rhs.split())
@@ -191,18 +191,19 @@ class Parser(object):
 
 # Argument values ignored after input file name
 try:
-    print(sys.argv, len(sys.argv))
-    if len(sys.argv) == 3:
-        sequence = open(sys.argv[2], 'r').readline()
-    # sequence = "vtype id lparen vtype id comma vtype id rparen lbrace return num semi rbrace"
+    sequence = "vtype id lparen vtype id comma vtype id rparen lbrace return num semi rbrace"
     # sequence = "class id lbrace vtype id assign num semi vtype id lparen vtype id comma " \
     #            "vtype id rparen lbrace return num semi rbrace rbrace"
 
-    sequence = "vtype id assign lparen num addsub num rparen multdiv num semi vtype id lparen vtype " \
-               "id rparen lbrace if lparen boolstr comp boolstr comp boolstr rparen lbrace id assign " \
-               "num semi rbrace return num semi rbrace"
+    # sequence = "vtype id assign lparen num addsub num rparen multdiv num semi vtype id lparen vtype " \
+    #            "id rparen lbrace if lparen boolstr comp boolstr comp boolstr rparen lbrace id assign " \
+    #            "num semi rbrace return num semi rbrace"
+
+    if len(sys.argv) == 2:
+        sequence = open(sys.argv[1], 'r').readline()
+
     my_parser = Parser(call_table("table"), sequence, call_cfg("cfg"))
-    print(my_parser.cfg_table)
+    # print(my_parser.cfg_table)
     my_parser.parse()
     for pre, fill, node in RenderTree(my_parser.state_stack[0], childiter=reversed):
         print("%s%s" % (pre, node.name))
