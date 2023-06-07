@@ -1,6 +1,9 @@
 import pandas as pd
 import math
+import sys
 from collections import defaultdict
+from anytree import Node, RenderTree
+from anytree.exporter import DotExporter
 
 
 def call_table(table_name: str) -> dict:
@@ -177,8 +180,19 @@ class Parser(object):
 
 
 # sequence = "vtype id lparen vtype id comma vtype id rparen lbrace return num semi rbrace"
-# sequence = "class id lbrace vtype id assign num semi vtype id lparen vtype id comma vtype id rparen lbrace return num semi rbrace rbrace"
-sequence = "vtype id assign lparen num addsub num rparen multdiv num semi vtype id lparen vtype id rparen lbrace if lparen boolstr comp boolstr comp boolstr rparen lbrace id assign num semi rbrace return num semi rbrace"
-my_parser = Parser(call_table("table"), sequence, call_cfg("cfg"))
-print(my_parser.cfg_table)
-my_parser.parse()
+sequence = "class id lbrace vtype id assign num semi vtype id lparen vtype id comma " \
+           "vtype id rparen lbrace return num semi rbrace rbrace"
+
+# sequence = "vtype id assign lparen num addsub num rparen multdiv num semi vtype id lparen vtype id rparen lbrace " \
+#           "if lparen boolstr comp boolstr comp boolstr rparen lbrace id assign num semi rbrace return num semi rbrace"
+
+# Argument values ignored after input file name
+
+try:
+    if len(sys.argv) == 3:
+        sequence = open(sys.argv[2], 'r').readline()
+    my_parser = Parser(call_table("table"), sequence, call_cfg("cfg"))
+    print(my_parser.cfg_table)
+    my_parser.parse()
+except (FileNotFoundError, NameError) as e:
+    print("Invalid argument")
