@@ -51,7 +51,7 @@ class Parser(object):
         self.cur = 0 # left viable prefix 할 때, 사용할 cur
         self.cur_stack = [0]
         self.cfg_table = cfg # cfg 들이 담김
-        # self.state_stack = [0] # state 들의 stack # 0은 초기값
+        self.state_stack = [Node("S")] # state 들의 stack
 
     # parse
     def parse(self):
@@ -104,6 +104,8 @@ class Parser(object):
     def forward(self):
         self.tokens[self.splitter], self.tokens[self.splitter + 1] \
             = self.tokens[self.splitter + 1], self.tokens[self.splitter]
+        self.state_stack.append(Node(self.tokens[self.splitter],
+                                     parent=self.state_stack[0]))
         self.splitter += 1
 
 
@@ -145,7 +147,6 @@ class Parser(object):
             self.cur += 1
         else:
             self.forward()
-
         # exception
         pass
 
@@ -157,11 +158,14 @@ class Parser(object):
         cfg = self.cfg_table[int(rule[1:])]
         print("reduce rule: ", cfg)
         lhs, rhs = cfg
+        self.state_stack.append(Node(lhs, parent=self.state_stack[0]))
         rhs_tokens = list(rhs.split())
         reduce_len = len(rhs_tokens)
 
         # epsilon reduce
         if rhs_tokens == ["''"]:
+            self.state_stack.append(Node("ε",
+                                         parent=self.state_stack[-1]))
             self.tokens.insert(self.splitter, lhs)
             self.splitter += 1
 
@@ -172,27 +176,36 @@ class Parser(object):
                 self.tokens[self.splitter-1] = lhs
                 del self.tokens[(self.splitter-1)-(reduce_len-1):(self.splitter-1)]
                 self.splitter -= (reduce_len-1)
-
+            tmp = 0
+            for i in range(len(self.state_stack) - 2, -1, -1):
+                if self.state_stack[i].name in rhs_tokens and \
+                        self.state_stack[i].parent == self.state_stack[0]:
+                    self.state_stack[i].parent = self.state_stack[-1]
+                    tmp += 1
+                if tmp == len(rhs_tokens):
+                    break
             for _ in range(reduce_len):
                 self.cur_stack.pop()
 
         pass
 
-
-# sequence = "vtype id lparen vtype id comma vtype id rparen lbrace return num semi rbrace"
-sequence = "class id lbrace vtype id assign num semi vtype id lparen vtype id comma " \
-           "vtype id rparen lbrace return num semi rbrace rbrace"
-
-# sequence = "vtype id assign lparen num addsub num rparen multdiv num semi vtype id lparen vtype id rparen lbrace " \
-#           "if lparen boolstr comp boolstr comp boolstr rparen lbrace id assign num semi rbrace return num semi rbrace"
-
 # Argument values ignored after input file name
-
 try:
+    print(sys.argv, len(sys.argv))
     if len(sys.argv) == 3:
         sequence = open(sys.argv[2], 'r').readline()
+    # sequence = "vtype id lparen vtype id comma vtype id rparen lbrace return num semi rbrace"
+    # sequence = "class id lbrace vtype id assign num semi vtype id lparen vtype id comma " \
+    #            "vtype id rparen lbrace return num semi rbrace rbrace"
+
+    sequence = "vtype id assign lparen num addsub num rparen multdiv num semi vtype id lparen vtype " \
+               "id rparen lbrace if lparen boolstr comp boolstr comp boolstr rparen lbrace id assign " \
+               "num semi rbrace return num semi rbrace"
     my_parser = Parser(call_table("table"), sequence, call_cfg("cfg"))
     print(my_parser.cfg_table)
     my_parser.parse()
+    for pre, fill, node in RenderTree(my_parser.state_stack[0], childiter=reversed):
+        print("%s%s" % (pre, node.name))
+
 except (FileNotFoundError, NameError) as e:
     print("Invalid argument")
