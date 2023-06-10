@@ -52,7 +52,7 @@ class Parser(object):
         accepted = False
 
         while not accepted:
-            self.check_viable_prefix() # left check
+            self.viable_prefix() # left check
             target = self.tokens[self.splitter + 1]
 
             try :
@@ -70,13 +70,13 @@ class Parser(object):
 
             accepted = self.check_rule(next_rule, left=False)
 
-    # viable_prefix check
-    def check_viable_prefix(self):
+    # viable_prefix
+    def viable_prefix(self):
         # 현재 state -> rule check해서 행동
         self.cur_stack = [0]
         self.state = 0
         if self.splitter == 0:
-            return True
+            return
         else:
             self.cur_index = 0
 
@@ -84,11 +84,11 @@ class Parser(object):
 
         while not self.check_rule(next_rule):
             if self.cur_index == self.splitter:
-                return True
+                return
             self.cur_stack.append(self.state)
             next_rule = self.table[self.state][self.tokens[self.cur_index]]
 
-        return False
+        return
 
     # forward / 앞으로 나가기
     def forward(self):
@@ -162,8 +162,6 @@ class Parser(object):
                     tmp += 1
                 if tmp == len(rhs_tokens):
                     break
-            for _ in range(reduce_len):
-                self.cur_stack.pop()
 
 
 # Argument values ignored after input file name
